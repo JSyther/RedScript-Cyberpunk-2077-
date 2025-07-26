@@ -1,33 +1,48 @@
 module DynamicStaminaRegen
 
 import Cyberpunk.PlayerPuppet
-import GameInstance
 import gamedataStatType
+import gameStatPools
+
+@addField(PlayerPuppet)
+let staminaRegenMultiplier: Float
 
 @wrapMethod(PlayerPuppet)
-func OnStaminaChanged(newValue: Float) -> Void {
-    wrappedMethod(newValue)
+func OnGameAttached() -> Void {
+    wrappedMethod()
 
-    // Get current stamina value
-    let currentStamina: Float = this.GetStatValue(gamedataStatType.Stamina)
-    // Check if player is in combat
-    let isInCombat: Bool = this.IsInCombat()
-
-    if (currentStamina < 40.0 && !isInCombat) {
-        // Out of combat and low stamina: increase stamina regen speed x2
-        this.ModifyStaminaRegenRate(2.0)
-    } else if (isInCombat) {
-        // In combat: decrease stamina regen speed to 50%
-        this.ModifyStaminaRegenRate(0.5)
-    } else {
-        // Normal stamina regen speed
-        this.ModifyStaminaRegenRate(1.0)
-    }
+    // Initialize multiplier at normal regen speed
+    this.staminaRegenMultiplier = 1.0
 }
 
-// Helper function to modify stamina regeneration rate by a multiplier
-func ModifyStaminaRegenRate(multiplier: Float) -> Void {
-    // Placeholder for actual implementation:
-    // Adjust the game's stamina regeneration rate using multiplier.
-    // This depends on game internals and may require hooking into stats or attributes.
+@wrapMethod(PlayerPuppet)
+func OnUpdate(deltaTime: Float) -> Void {
+    wrappedMethod(deltaTime)
+
+    let isInCombat: Bool = this.IsInCombat()
+    let currentStamina: Float = this.GetStatValue(gamedataStatType.Stamina)
+    let maxStamina: Float = this.GetStatValue(gamedataStatType.MaxStamina)
+
+    // Calculate stamina percentage
+    let staminaPercent: Float = currentStamina / maxStamina * 100.0
+
+    // Update regen multiplier based on combat and stamina
+    if (isInCombat) {
+        this.staminaRegenMultiplier = 0.5 // slower regen in combat
+    } else if (staminaPercent < 40.0) {
+        this.staminaRegenMultiplier = 2.0 // faster regen when stamina is low and out of combat
+    } else {
+        this.staminaRegenMultiplier = 1.0 // normal regen otherwise
+    }
+
+    // Apply multiplier to stamina regen stat pool
+    this.AdjustStaminaRegen(this.staminaRegenMultiplier)
+}
+
+// Function to adjust stamina regeneration by multiplier
+func AdjustStaminaRegen(multiplier: Float) -> Void {
+    let staminaPool: ref<gameStatPools.PoolData> = this.GetStatPool(gamedataStatType.Stamina)
+    if (staminaPool != null) {
+        staminaPool.regenRate = staminaPool.regenRate * multiplier
+    }
 }
