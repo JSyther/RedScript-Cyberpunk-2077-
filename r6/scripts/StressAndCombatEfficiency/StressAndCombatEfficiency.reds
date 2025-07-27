@@ -68,7 +68,18 @@ func IncreaseStress(amount: Float) -> Void {
     if (this.stressLevel > 100.0) {
         this.stressLevel = 100.0
     }
-    // Optional: Trigger visual stress feedback here (e.g. screen effect)
+
+    // === Optional: Trigger visual stress feedback (e.g. red vignette, heartbeat sound) ===
+    let visualSystem = GameInstance.GetVisualSystem()
+    if visualSystem != null {
+        let intensity: Float = this.stressLevel / 100.0
+        visualSystem.PlayScreenEffect(n"fx_stress_vignette", intensity)
+    }
+
+    let audioSystem = GameInstance.GetAudioSystem()
+    if audioSystem != null && this.stressLevel >= 75.0 {
+        audioSystem.PlaySound(n"ui_stress_heartbeat_loop")
+    }
 }
 
 func DecreaseStress(amount: Float) -> Void {
@@ -76,8 +87,21 @@ func DecreaseStress(amount: Float) -> Void {
     if (this.stressLevel < 0.0) {
         this.stressLevel = 0.0
     }
-    // Optional: Remove stress effects if stressLevel low
+
+    // === Optional: Remove stress effects if stressLevel is low ===
+    if this.stressLevel <= 20.0 {
+        let visualSystem = GameInstance.GetVisualSystem()
+        if visualSystem != null {
+            visualSystem.StopScreenEffect(n"fx_stress_vignette")
+        }
+
+        let audioSystem = GameInstance.GetAudioSystem()
+        if audioSystem != null {
+            audioSystem.StopSound(n"ui_stress_heartbeat_loop")
+        }
+    }
 }
+
 
 @addMethod(PlayerPuppet)
 func ResetStressCooldown() -> Void {
@@ -102,10 +126,47 @@ func ApplyStressEffects() -> Void {
 // === PLACEHOLDER FUNCTIONS ===
 // Replace these with actual game API calls or hooks for stats adjustment
 
+// === AIM ACCURACY MODIFIER ===
 func SetAimAccuracyModifier(multiplier: Float) -> Void {
-    // TODO: hook to player's aim accuracy stat
+    let statSystem = GameInstance.GetStatPoolsSystem()
+    if statSystem == null {
+        return
+    }
+
+    let owner = this.GetEntityID()
+    let accuracyMod = statSystem.GetStatModifier(owner, gamedataStatType.SpreadReduction)
+    
+    // Remove any existing custom modifier with our ID
+    statSystem.RemoveModifier(owner, gamedataStatType.SpreadReduction, n"AimMod")
+
+    // Apply new accuracy modifier (SpreadReduction increases accuracy)
+    let mod = StatModifierData()
+    mod.modifierType = gameStatModifierType.Multiply
+    mod.value = multiplier
+    mod.modifierName = n"AimMod"
+
+    statSystem.AddModifier(owner, gamedataStatType.SpreadReduction, mod)
 }
 
+
+// === STAMINA REGEN MULTIPLIER ===
 func SetStaminaRegenMultiplier(multiplier: Float) -> Void {
-    // TODO: hook to player's stamina regen stat pool
+    let statSystem = GameInstance.GetStatPoolsSystem()
+    if statSystem == null {
+        return
+    }
+
+    let owner = this.GetEntityID()
+    let regenType = gamedataStatType.StaminaRegenRate
+
+    // Remove previous modifier if applied
+    statSystem.RemoveModifier(owner, regenType, n"StaminaMod")
+
+    let mod = StatModifierData()
+    mod.modifierType = gameStatModifierType.Multiply
+    mod.value = multiplier
+    mod.modifierName = n"StaminaMod"
+
+    statSystem.AddModifier(owner, regenType, mod)
 }
+
