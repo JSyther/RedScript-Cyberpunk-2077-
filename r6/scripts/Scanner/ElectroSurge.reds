@@ -1,5 +1,5 @@
 // ElectroSurge.reds
-// REDmod Script - Amplifies damage of Short Circuit quickhack by Syther
+// REDmod Script - Amplifies damage of Short Circuit quickhack
 
 module ElectroSurge
 
