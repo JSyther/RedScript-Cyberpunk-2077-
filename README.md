@@ -30,9 +30,13 @@ This repository contains several REDmod scripts to enhance and customise Cyberpu
 Place each compiled `.reds` file inside its own folder under the following directory structure within your Cyberpunk 2077 installation:
 
 Cyberpunk2077/
+
   └── r6/
+  
     └── scripts/
+    
       └── <ModFolderName>/
+      
         └── <ModFileName>.reds
         
 ---
