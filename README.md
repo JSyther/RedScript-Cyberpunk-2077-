@@ -32,8 +32,11 @@ Place each compiled `.reds` file inside its own folder under the following direc
 | Cyberpunk2077
 | 
 |  └── r6 
+
 |    └── scripts
+
 |      └── <ModFolderName>
+
 |        └── <ModFileName>.reds
         
 ---
