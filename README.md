@@ -1,3 +1,4 @@
+```plaintext
 # Redmod - Cyberpunk 2077 Mods Collection
 
 This repository contains various REDmods for Cyberpunk 2077, including gameplay enhancements, quality of life improvements, and experimental features.
@@ -29,7 +30,7 @@ This repository contains several REDmod scripts to enhance and customise Cyberpu
 
 Place each compiled `.reds` file inside its own folder under the following directory structure within your Cyberpunk 2077 installation:
 
-```plaintext
+
 Cyberpunk2077/
 └── r6/
     └── scripts/
