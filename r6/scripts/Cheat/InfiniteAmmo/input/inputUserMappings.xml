@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <userMapping>
+    <mapping name="ToggleInfiniteAmmo" type="Button" key="IK_2"/>
+  </userMapping>
+</root>
