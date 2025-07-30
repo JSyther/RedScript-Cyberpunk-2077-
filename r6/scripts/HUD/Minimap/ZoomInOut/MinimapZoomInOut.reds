@@ -1,4 +1,4 @@
-module MinimapZoomOut
+module MinimapZoomInOut
 
 @addField(PlayerPuppet)
 let currentZoom: Float = 1.0
